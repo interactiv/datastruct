@@ -2,11 +2,9 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-
 package datastruct
 
 import (
-	"reflect"
 	"sort"
 )
 
@@ -23,6 +21,7 @@ type ArrayInterface interface {
 	Length() int
 	Shift() interface{}
 	Unshift(values ...interface{}) int
+	Filter(func(interface{}, int) bool) ArrayInterface
 	ForEach(func(interface{}, int))
 	Reduce(func(interface{}, interface{}, int) interface{}, interface{}) interface{}
 	Map(func(interface{}, int) interface{}) ArrayInterface
@@ -221,19 +220,58 @@ func (a *Array) Concat(arrays ...ArrayInterface) ArrayInterface {
 	return result
 }
 
+//Filter filters elements given a predicate
+func (a *Array) Filter(predicate func(interface{}, int) bool) ArrayInterface {
+	return a.Reduce(func(result interface{}, el interface{}, index int) interface{} {
+		if predicate(el, index) {
+			result.(*Array).Push(el)
+		}
+		return result
+	}, NewArray()).(ArrayInterface)
+}
+
 //NewArrayFrom creates an Array from builtin Go arrays
 func NewArrayFrom(array interface{}) *Array {
 	a := NewArray()
-	switch t := array.(type) {
-	case Array, ArrayInterface:
-		return array.Slice()
-	default:
+
+	switch array := array.(type) {
+	case Array:
+		a = array.Slice().(*Array)
+	case []int:
 		for _, el := range array {
 			a.Push(el)
 		}
-		return a
-	}
+	case []int8:
+		for _, el := range array {
+			a.Push(el)
+		}
+	case []int32:
+		for _, el := range array {
+			a.Push(el)
+		}
+	case []int64:
+		for _, el := range array {
+			a.Push(el)
+		}
+	case string:
+		for _, el := range array {
+			a.Push(el)
+		}
+	case []string:
+		for _, el := range array {
+			a.Push(el)
+		}
 
+	case []byte:
+		for _, el := range array {
+			a.Push(el)
+		}
+	case []interface{}:
+		for _, el := range array {
+			a.Push(el)
+		}
+	}
+	return a
 }
 
 // sorter is used for array.Sort

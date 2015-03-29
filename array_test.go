@@ -32,6 +32,48 @@ func TestNewArray(t *testing.T) {
 
 }
 
+func TestFilter(t *testing.T) {
+	type fixture struct {
+		array    *Array
+		callback func(interface{}, int) bool
+		expected *Array
+	}
+	fixtures := NewArray(
+		&fixture{
+			NewArray(1, 2, 3, 4),
+			func(val interface{}, i int) bool {
+				return val.(int)%2 == 0
+			},
+			NewArray(2, 4),
+		},
+	)
+	fixtures.ForEach(func(el interface{}, i int) {
+		fixture := el.(*fixture)
+		filtered := fixture.array.Filter(fixture.callback)
+		fixture.expected.ForEach(func(el interface{}, i int) {
+			expect(t, filtered.At(i), el)
+		})
+	})
+}
+
+func TestNewArrayFrom(t *testing.T) {
+	type fixture struct {
+		args []interface{}
+	}
+	type test struct{ letter string }
+	fixtures := NewArray(
+		&fixture{[]interface{}{[]int{1, 2, 3}, NewArray(1, 2, 3)}},
+		&fixture{[]interface{}{[]string{"a", "b", "c"}, NewArray("a", "b", "c")}},
+		&fixture{[]interface{}{[]interface{}{test{"a"}}, NewArray(test{"a"})}},
+	)
+	fixtures.ForEach(func(val interface{}, i int) {
+		a := NewArrayFrom(val.(*fixture).args[0])
+		val.(*fixture).args[1].(*Array).ForEach(func(el interface{}, i int) {
+			expect(t, a.At(i), el)
+		})
+	})
+}
+
 func TestPush(t *testing.T) {
 	a := NewArray()
 	a.Push("foo", "bar")
