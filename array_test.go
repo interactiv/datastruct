@@ -29,6 +29,7 @@ func TestNewArray(t *testing.T) {
 	// test if pointers are properly supported
 	b := NewArray(&struct{ x int }{x: 1})
 	expect(t, b.At(0).(*struct{ x int }).x, 1)
+
 }
 
 func TestPush(t *testing.T) {
