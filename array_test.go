@@ -340,3 +340,70 @@ func TestSort(t *testing.T) {
 	})
 
 }
+
+func TestIndexOf(t *testing.T) {
+	type fixture struct {
+		array    *Array
+		args     []interface{}
+		expected int
+	}
+	fixtures := NewArray(&fixture{
+		NewArray(1, 2, 3),
+		[]interface{}{1, 0},
+		0,
+	},
+		&fixture{
+			NewArray(4, 5, 6),
+			[]interface{}{1, 0},
+			-1,
+		},
+		&fixture{
+			NewArray(1, 2, "a", "b"),
+			[]interface{}{"a", 1},
+			2,
+		})
+	fixtures.ForEach(func(el interface{}, index int) {
+		fixture := el.(*fixture)
+		i := fixture.array.IndexOf(fixture.args[0], fixture.args[1].(int))
+		expect(t, i, fixture.expected)
+	})
+}
+
+func TestReduceRight(t *testing.T) {
+	type fixture struct {
+		array    *Array
+		reducer  func(interface{}, interface{}, int) interface{}
+		initial  interface{}
+		expected interface{}
+	}
+	fixtures := NewArray(&fixture{
+		NewArray("m", "e", "s", "s", "a", "g", "e"),
+		func(word interface{}, letter interface{}, index int) interface{} {
+			return word.(string) + letter.(string)
+		},
+		"",
+		"egassem",
+	})
+	fixtures.ForEach(func(el interface{}, index int) {
+		fixture := el.(*fixture)
+		expect(t, fixture.array.ReduceRight(fixture.reducer, fixture.initial), fixture.expected)
+	})
+}
+
+func TestLastIndexOf(t *testing.T) {
+	type fixture struct {
+		array    *Array
+		args     []interface{}
+		expected int
+	}
+	fixtures := NewArray(&fixture{
+		NewArray(1, 2, 3, 1),
+		[]interface{}{1, 4},
+		3,
+	})
+	fixtures.ForEach(func(el interface{}, index int) {
+		fixture := el.(*fixture)
+		i := fixture.array.LastIndexOf(fixture.args[0], fixture.args[1].(int))
+		expect(t, i, fixture.expected)
+	})
+}

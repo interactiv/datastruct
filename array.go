@@ -24,6 +24,7 @@ type ArrayInterface interface {
 	Filter(func(interface{}, int) bool) ArrayInterface
 	ForEach(func(interface{}, int))
 	Reduce(func(interface{}, interface{}, int) interface{}, interface{}) interface{}
+	ReduceRight(func(interface{}, interface{}, int) interface{}, interface{}) interface{}
 	Map(func(interface{}, int) interface{}) ArrayInterface
 	Slice(v ...int) ArrayInterface
 	Splice(start int, deleteCount int, items ...interface{}) ArrayInterface
@@ -32,6 +33,8 @@ type ArrayInterface interface {
 	Reverse() ArrayInterface
 	Concat(arrays ...ArrayInterface) ArrayInterface
 	Sort(func(a, b interface{}) bool) ArrayInterface
+	IndexOf(interface{}, int) int
+	LastIndexOf(interface{}, int) int
 }
 
 // NewArray returns a new array
@@ -107,6 +110,14 @@ func (a *Array) Reduce(callback func(result interface{}, value interface{}, inde
 	})
 	return initial
 
+}
+
+func (a *Array) ReduceRight(callback func(result interface{}, value interface{}, index int) interface{}, initial interface{}) interface{} {
+	result := initial
+	for i := len(a.array) - 1; i >= 0; i-- {
+		result = callback(result, a.At(i), i)
+	}
+	return result
 }
 
 // Map iterate over array and push the result of callback into a new Array
@@ -228,6 +239,28 @@ func (a *Array) Filter(predicate func(interface{}, int) bool) ArrayInterface {
 		}
 		return result
 	}, NewArray()).(ArrayInterface)
+}
+
+func (a *Array) IndexOf(searchElement interface{}, fromIndex int) int {
+
+	for i := fromIndex; i < a.Length(); i++ {
+		if a.At(i) == searchElement {
+			return i
+		}
+	}
+	return -1
+}
+
+// The lastIndexOf() method returns the last index at which a given element
+// can be found in the array, or -1 if it is not present. The array is searched backwards, starting at fromIndex.
+func (a *Array) LastIndexOf(searchElement interface{}, fromIndex int) int {
+	for i := fromIndex; i >= 0; i-- {
+		if a.At(i) == searchElement {
+			return i
+		}
+	}
+
+	return -1
 }
 
 //NewArrayFrom creates an Array from builtin Go arrays
