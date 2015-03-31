@@ -36,6 +36,8 @@ type ArrayInterface interface {
 	Sort(func(a, b interface{}) bool) ArrayInterface
 	IndexOf(interface{}, int) int
 	LastIndexOf(interface{}, int) int
+	String() string
+	ArrayInterface() []interface{}
 }
 
 // NewArray returns a new array
@@ -265,6 +267,10 @@ func (a *Array) LastIndexOf(searchElement interface{}, fromIndex int) int {
 	return -1
 }
 
+func (a *Array) ArrayInterface() []interface{} {
+	return append([]interface{}{}, a.array...)
+}
+
 func (a *Array) String() string {
 	return "ArrayInterface[" + a.Reduce(func(result interface{}, el interface{}, index int) interface{} {
 		if index == a.Length()-1 {
@@ -279,7 +285,9 @@ func (a *Array) String() string {
 // support the following types :
 // []Bool, []Int, []int8, []int16, []int32, []int64, []uint,
 // []uint8, []uint16, []uint32, []uint64, []float32, []float64, []complex64, []complex128 , []string
-func NewArrayFrom(collection interface{}) ArrayInterface {
+//
+// CAN PANIC
+func NewArrayFrom(collection interface{}, delegate ...func(interface{}, ArrayInterface) error) ArrayInterface {
 	a := NewArray()
 
 	switch collection := collection.(type) {
@@ -345,7 +353,10 @@ func NewArrayFrom(collection interface{}) ArrayInterface {
 		for _, el := range collection {
 			a.Push(el)
 		}
-
+	case []struct{}:
+		for _, el := range collection {
+			a.Push(el)
+		}
 	case string:
 		for _, el := range collection {
 			a.Push(el)
@@ -357,6 +368,14 @@ func NewArrayFrom(collection interface{}) ArrayInterface {
 	case []interface{}:
 		for _, el := range collection {
 			a.Push(el)
+		}
+	default:
+		if len(delegate) > 0 {
+			if err := delegate[0](collection, a); err != nil {
+				panic(fmt.Sprintf("can't turn value %+v into an ArrayInterface", collection))
+			}
+		} else {
+			panic(fmt.Sprintf("can't turn value %+v into an ArrayInterface", collection))
 		}
 	}
 	return a

@@ -5,6 +5,7 @@
 package datastruct
 
 import (
+	"errors"
 	"testing"
 )
 
@@ -60,15 +61,38 @@ func TestNewArrayFrom(t *testing.T) {
 	type fixture struct {
 		args []interface{}
 	}
+	myStruct := &struct{ foo int }{foo: 1}
+	myOtherStruct := &struct{ foo int }{foo: 2}
 	type test struct{ letter string }
 	fixtures := NewArray(
-		&fixture{[]interface{}{[]int{1, 2, 3}, NewArray(1, 2, 3)}},
-		&fixture{[]interface{}{[]string{"a", "b", "c"}, NewArray("a", "b", "c")}},
-		&fixture{[]interface{}{[]interface{}{test{"a"}}, NewArray(test{"a"})}},
+		&fixture{[]interface{}{NewArray(1, 2, 3), []int{1, 2, 3}}},
+		&fixture{[]interface{}{NewArray("a", "b", "c"), []string{"a", "b", "c"}}},
+		&fixture{[]interface{}{NewArray(test{"a"}), []interface{}{test{"a"}}}},
+		&fixture{[]interface{}{NewArray(true, false), []bool{true, false}}},
+		&fixture{[]interface{}{NewArray(myStruct, myOtherStruct), []*struct{ foo int }{myStruct, myOtherStruct}, func(v interface{}, a ArrayInterface) error {
+			var err error
+			switch v := v.(type) {
+			case []*struct{ foo int }:
+				for _, el := range v {
+					a.Push(el)
+				}
+			default:
+				err = errors.New("Cant tell type")
+			}
+			return err
+		}}},
 	)
+	t.Log(fixtures.At(4).(*fixture).args[1])
 	fixtures.ForEach(func(val interface{}, i int) {
-		a := NewArrayFrom(val.(*fixture).args[0])
-		val.(*fixture).args[1].(*Array).ForEach(func(el interface{}, i int) {
+		var a ArrayInterface
+		fix := val.(*fixture)
+		if len(fix.args) == 2 {
+			a = NewArrayFrom(fix.args[1])
+		} else {
+			a = NewArrayFrom(fix.args[1], fix.args[2].(func(interface{}, ArrayInterface) error))
+		}
+		val.(*fixture).args[0].(*Array).ForEach(func(el interface{}, i int) {
+
 			expect(t, a.At(i), el)
 		})
 	})
