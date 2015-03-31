@@ -5,6 +5,7 @@
 package datastruct
 
 import (
+	"fmt"
 	"sort"
 )
 
@@ -38,12 +39,13 @@ type ArrayInterface interface {
 }
 
 // NewArray returns a new array
-func NewArray(values ...interface{}) *Array {
+func NewArray(values ...interface{}) ArrayInterface {
 	array := &Array{}
 	for i := 0; i < len(values); i++ {
 		array.Push(values[i])
 	}
-	return array
+	return ArrayInterface(array)
+
 }
 
 // At get a value at index
@@ -263,44 +265,97 @@ func (a *Array) LastIndexOf(searchElement interface{}, fromIndex int) int {
 	return -1
 }
 
-//NewArrayFrom creates an Array from builtin Go arrays
-func NewArrayFrom(array interface{}) *Array {
+func (a *Array) String() string {
+	return "ArrayInterface[" + a.Reduce(func(result interface{}, el interface{}, index int) interface{} {
+		if index == a.Length()-1 {
+			return result.(string) + fmt.Sprintf("%+v", el)
+		}
+		return result.(string) + fmt.Sprintf("%+v", el) + ", "
+	}, "").(string) + "]"
+
+}
+
+// NewArrayFrom creates an Array from builtin Go arrays
+// support the following types :
+// []Bool, []Int, []int8, []int16, []int32, []int64, []uint,
+// []uint8, []uint16, []uint32, []uint64, []float32, []float64, []complex64, []complex128 , []string
+func NewArrayFrom(collection interface{}) ArrayInterface {
 	a := NewArray()
 
-	switch array := array.(type) {
+	switch collection := collection.(type) {
 	case Array:
-		a = array.Slice().(*Array)
+		a = collection.Slice().(*Array)
+	case []bool:
+		for _, el := range collection {
+			a.Push(el)
+		}
 	case []int:
-		for _, el := range array {
+		for _, el := range collection {
 			a.Push(el)
 		}
 	case []int8:
-		for _, el := range array {
+		for _, el := range collection {
+			a.Push(el)
+		}
+	case []int16:
+		for _, el := range collection {
 			a.Push(el)
 		}
 	case []int32:
-		for _, el := range array {
+		for _, el := range collection {
 			a.Push(el)
 		}
 	case []int64:
-		for _, el := range array {
+		for _, el := range collection {
 			a.Push(el)
 		}
-	case string:
-		for _, el := range array {
+	case []uint:
+		for _, el := range collection {
 			a.Push(el)
 		}
-	case []string:
-		for _, el := range array {
+	case []uint8:
+		for _, el := range collection {
+			a.Push(el)
+		}
+	case []uint16:
+		for _, el := range collection {
+			a.Push(el)
+		}
+	case []uint32:
+		for _, el := range collection {
+			a.Push(el)
+		}
+	case []uint64:
+		for _, el := range collection {
+			a.Push(el)
+		}
+	case []float32:
+		for _, el := range collection {
+			a.Push(el)
+		}
+	case []float64:
+		for _, el := range collection {
+			a.Push(el)
+		}
+	case []complex64:
+		for _, el := range collection {
+			a.Push(el)
+		}
+	case []complex128:
+		for _, el := range collection {
 			a.Push(el)
 		}
 
-	case []byte:
-		for _, el := range array {
+	case string:
+		for _, el := range collection {
+			a.Push(el)
+		}
+	case []string:
+		for _, el := range collection {
 			a.Push(el)
 		}
 	case []interface{}:
-		for _, el := range array {
+		for _, el := range collection {
 			a.Push(el)
 		}
 	}

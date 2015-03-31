@@ -34,9 +34,9 @@ func TestNewArray(t *testing.T) {
 
 func TestFilter(t *testing.T) {
 	type fixture struct {
-		array    *Array
+		array    ArrayInterface
 		callback func(interface{}, int) bool
-		expected *Array
+		expected ArrayInterface
 	}
 	fixtures := NewArray(
 		&fixture{
@@ -183,7 +183,7 @@ func TestSplice(t *testing.T) {
 
 func TestSlice(t *testing.T) {
 	type fixture struct {
-		array *Array
+		array ArrayInterface
 		Slice struct {
 			Begin int
 			End   int
@@ -343,7 +343,7 @@ func TestSort(t *testing.T) {
 
 func TestIndexOf(t *testing.T) {
 	type fixture struct {
-		array    *Array
+		array    ArrayInterface
 		args     []interface{}
 		expected int
 	}
@@ -371,7 +371,7 @@ func TestIndexOf(t *testing.T) {
 
 func TestReduceRight(t *testing.T) {
 	type fixture struct {
-		array    *Array
+		array    ArrayInterface
 		reducer  func(interface{}, interface{}, int) interface{}
 		initial  interface{}
 		expected interface{}
@@ -392,7 +392,7 @@ func TestReduceRight(t *testing.T) {
 
 func TestLastIndexOf(t *testing.T) {
 	type fixture struct {
-		array    *Array
+		array    ArrayInterface
 		args     []interface{}
 		expected int
 	}
