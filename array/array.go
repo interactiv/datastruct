@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-package datastruct
+package array
 
 import (
 	"fmt"
@@ -40,8 +40,8 @@ type ArrayInterface interface {
 	ArrayInterface() []interface{}
 }
 
-// NewArray returns a new array
-func NewArray(values ...interface{}) ArrayInterface {
+// New returns a new array
+func New(values ...interface{}) ArrayInterface {
 	array := &Array{}
 	for i := 0; i < len(values); i++ {
 		array.Push(values[i])
@@ -129,7 +129,7 @@ func (a *Array) Map(callback func(value interface{}, i int) interface{}) ArrayIn
 	return a.Reduce(func(result interface{}, value interface{}, index int) interface{} {
 		result.(ArrayInterface).Push(callback(value, index))
 		return result
-	}, NewArray()).(ArrayInterface)
+	}, New()).(ArrayInterface)
 }
 
 // Sort sorts an array given a compare function
@@ -172,7 +172,7 @@ func (a *Array) Slice(beginAndEndValues ...int) ArrayInterface {
 			end = a.Length()
 		}
 	} else {
-		return NewArray(a.array...)
+		return New(a.array...)
 	}
 	if begin < 0 {
 		if a.Length()+begin < 0 {
@@ -183,16 +183,16 @@ func (a *Array) Slice(beginAndEndValues ...int) ArrayInterface {
 	}
 	if end < 0 {
 		if a.Length()-end < 0 {
-			return NewArray()
+			return New()
 		}
 		end = a.Length() + end
 
 	}
 	if end <= begin {
-		return NewArray()
+		return New()
 	}
 
-	return NewArray(a.array[begin:end]...)
+	return New(a.array[begin:end]...)
 }
 
 // Some returns true if the callback predicate is satisfied
@@ -217,7 +217,7 @@ func (a *Array) Every(callback func(v interface{}, index int) bool) bool {
 
 // Reverse reverse the order of the elements of the array and returns a new one
 func (a *Array) Reverse() ArrayInterface {
-	var result ArrayInterface = NewArray()
+	var result ArrayInterface = New()
 	for i := a.Length() - 1; i >= 0; i-- {
 		result.Push(a.array[i])
 	}
@@ -226,7 +226,7 @@ func (a *Array) Reverse() ArrayInterface {
 
 // Concat adds arrays to the end of the array and returns an new array
 func (a *Array) Concat(arrays ...ArrayInterface) ArrayInterface {
-	result := NewArray(a.array...)
+	result := New(a.array...)
 	for _, array := range arrays {
 		array.ForEach(func(val interface{}, i int) {
 			result.Push(val)
@@ -242,7 +242,7 @@ func (a *Array) Filter(predicate func(interface{}, int) bool) ArrayInterface {
 			result.(*Array).Push(el)
 		}
 		return result
-	}, NewArray()).(ArrayInterface)
+	}, New()).(ArrayInterface)
 }
 
 func (a *Array) IndexOf(searchElement interface{}, fromIndex int) int {
@@ -281,14 +281,14 @@ func (a *Array) String() string {
 
 }
 
-// NewArrayFrom creates an Array from builtin Go arrays
+// NewFrom creates an Array from builtin Go arrays
 // support the following types :
 // []Bool, []Int, []int8, []int16, []int32, []int64, []uint,
 // []uint8, []uint16, []uint32, []uint64, []float32, []float64, []complex64, []complex128 , []string
 //
 // CAN PANIC
-func NewArrayFrom(collection interface{}, delegate ...func(interface{}, ArrayInterface) error) ArrayInterface {
-	a := NewArray()
+func NewFrom(collection interface{}, delegate ...func(interface{}, ArrayInterface) error) ArrayInterface {
+	a := New()
 
 	switch collection := collection.(type) {
 	case Array:

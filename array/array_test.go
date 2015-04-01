@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-package datastruct
+package array
 
 import (
 	"errors"
@@ -17,7 +17,7 @@ func expect(t *testing.T, actual interface{}, expected interface{}) {
 }
 
 func TestLength(t *testing.T) {
-	a := NewArray(1, 2, 3)
+	a := New(1, 2, 3)
 	expected := 3
 	actual := a.Length()
 	expect(t, expected, actual)
@@ -25,10 +25,10 @@ func TestLength(t *testing.T) {
 
 // TestNewArray tests array constructor
 func TestNewArray(t *testing.T) {
-	a := NewArray(1, 2, 3)
+	a := New(1, 2, 3)
 	expect(t, a.At(0), 1)
 	// test if pointers are properly supported
-	b := NewArray(&struct{ x int }{x: 1})
+	b := New(&struct{ x int }{x: 1})
 	expect(t, b.At(0).(*struct{ x int }).x, 1)
 
 }
@@ -39,13 +39,13 @@ func TestFilter(t *testing.T) {
 		callback func(interface{}, int) bool
 		expected ArrayInterface
 	}
-	fixtures := NewArray(
+	fixtures := New(
 		&fixture{
-			NewArray(1, 2, 3, 4),
+			New(1, 2, 3, 4),
 			func(val interface{}, i int) bool {
 				return val.(int)%2 == 0
 			},
-			NewArray(2, 4),
+			New(2, 4),
 		},
 	)
 	fixtures.ForEach(func(el interface{}, i int) {
@@ -64,12 +64,12 @@ func TestNewArrayFrom(t *testing.T) {
 	myStruct := &struct{ foo int }{foo: 1}
 	myOtherStruct := &struct{ foo int }{foo: 2}
 	type test struct{ letter string }
-	fixtures := NewArray(
-		&fixture{[]interface{}{NewArray(1, 2, 3), []int{1, 2, 3}}},
-		&fixture{[]interface{}{NewArray("a", "b", "c"), []string{"a", "b", "c"}}},
-		&fixture{[]interface{}{NewArray(test{"a"}), []interface{}{test{"a"}}}},
-		&fixture{[]interface{}{NewArray(true, false), []bool{true, false}}},
-		&fixture{[]interface{}{NewArray(myStruct, myOtherStruct), []*struct{ foo int }{myStruct, myOtherStruct}, func(v interface{}, a ArrayInterface) error {
+	fixtures := New(
+		&fixture{[]interface{}{New(1, 2, 3), []int{1, 2, 3}}},
+		&fixture{[]interface{}{New("a", "b", "c"), []string{"a", "b", "c"}}},
+		&fixture{[]interface{}{New(test{"a"}), []interface{}{test{"a"}}}},
+		&fixture{[]interface{}{New(true, false), []bool{true, false}}},
+		&fixture{[]interface{}{New(myStruct, myOtherStruct), []*struct{ foo int }{myStruct, myOtherStruct}, func(v interface{}, a ArrayInterface) error {
 			var err error
 			switch v := v.(type) {
 			case []*struct{ foo int }:
@@ -87,9 +87,9 @@ func TestNewArrayFrom(t *testing.T) {
 		var a ArrayInterface
 		fix := val.(*fixture)
 		if len(fix.args) == 2 {
-			a = NewArrayFrom(fix.args[1])
+			a = NewFrom(fix.args[1])
 		} else {
-			a = NewArrayFrom(fix.args[1], fix.args[2].(func(interface{}, ArrayInterface) error))
+			a = NewFrom(fix.args[1], fix.args[2].(func(interface{}, ArrayInterface) error))
 		}
 		val.(*fixture).args[0].(*Array).ForEach(func(el interface{}, i int) {
 
@@ -99,9 +99,9 @@ func TestNewArrayFrom(t *testing.T) {
 }
 
 func TestPush(t *testing.T) {
-	a := NewArray()
+	a := New()
 	a.Push("foo", "bar")
-	NewArray("foo", "bar").ForEach(func(val interface{}, i int) {
+	New("foo", "bar").ForEach(func(val interface{}, i int) {
 		expect(t, a.At(i), val)
 	})
 
@@ -109,7 +109,7 @@ func TestPush(t *testing.T) {
 
 func TestPop(t *testing.T) {
 	popped := "bar"
-	a := NewArray("foo", popped)
+	a := New("foo", popped)
 	b := a.Pop()
 	if b != "bar" {
 		t.Error(b, "should be", popped)
@@ -119,7 +119,7 @@ func TestPop(t *testing.T) {
 func TestForEach(t *testing.T) {
 	result := 0
 	expected := 10
-	a := NewArray(1, 2, 3, 4)
+	a := New(1, 2, 3, 4)
 	a.ForEach(func(v interface{}, i int) {
 		result += v.(int)
 	})
@@ -129,7 +129,7 @@ func TestForEach(t *testing.T) {
 }
 
 func TestReduce(t *testing.T) {
-	a := NewArray(1, 2, 3, 4)
+	a := New(1, 2, 3, 4)
 	b := a.Reduce(func(r, v interface{}, i int) interface{} {
 		return r.(int) + v.(int)
 	}, 0)
@@ -139,8 +139,8 @@ func TestReduce(t *testing.T) {
 }
 
 func TestMap(t *testing.T) {
-	a := NewArray(1, 2, 3)
-	expected := NewArray(2, 4, 6)
+	a := New(1, 2, 3)
+	expected := New(2, 4, 6)
 	b := a.Map(func(v interface{}, i int) interface{} {
 		return v.(int) * 2
 	})
@@ -153,7 +153,7 @@ func TestMap(t *testing.T) {
 }
 
 func TestAt(t *testing.T) {
-	a := NewArray("foo", "bar", "baz")
+	a := New("foo", "bar", "baz")
 	for i, v := range []string{"foo", "bar", "baz"} {
 		if a.At(i) != v {
 			t.Errorf("%v should be %v", a.At(i), v)
@@ -162,7 +162,7 @@ func TestAt(t *testing.T) {
 }
 
 func TestUnshift(t *testing.T) {
-	a := NewArray("baz")
+	a := New("baz")
 	a.Unshift("foo", "bar")
 	expected := []string{"bar", "foo", "baz"}
 	for i, v := range expected {
@@ -173,7 +173,7 @@ func TestUnshift(t *testing.T) {
 }
 
 func TestShift(t *testing.T) {
-	a := NewArray("foo", "bar")
+	a := New("foo", "bar")
 	b := a.Shift()
 	if a.At(0) != "bar" {
 		t.Errorf("a[0] should be bar")
@@ -189,11 +189,11 @@ func TestSplice(t *testing.T) {
 		arguments []interface{}
 		expected  ArrayInterface
 	}
-	fixtures := NewArray(
+	fixtures := New(
 		&fixture{
-			NewArray(1, 2, 3),
+			New(1, 2, 3),
 			[]interface{}{0, 1, 4, 5},
-			NewArray(4, 5, 2, 3),
+			New(4, 5, 2, 3),
 		},
 	)
 	fixtures.ForEach(func(fix interface{}, index int) {
@@ -214,7 +214,7 @@ func TestSlice(t *testing.T) {
 		}
 		Expected []int
 	}
-	array := NewArray(1, 2, 3, 4, 5)
+	array := New(1, 2, 3, 4, 5)
 	fixtures := []*fixture{
 		&fixture{
 			array: array,
@@ -253,14 +253,14 @@ func TestSome(t *testing.T) {
 	}
 	fixtures := []*fixture{
 		&fixture{
-			array: NewArray(1, 2, 3, 4, 5, -6),
+			array: New(1, 2, 3, 4, 5, -6),
 			cb: func(value interface{}, index int) bool {
 				return value.(int) >= 0
 			},
 			expected: true,
 		},
 		&fixture{
-			array: NewArray(1, 2, 3),
+			array: New(1, 2, 3),
 			cb: func(v interface{}, i int) bool {
 				return v.(int) == 0
 			},
@@ -282,14 +282,14 @@ func TestEvery(t *testing.T) {
 	isOdd := func(v interface{}, i int) bool {
 		return v.(int)%2 == 0
 	}
-	fixtures := NewArray(
+	fixtures := New(
 		fixture{
-			NewArray(2, 4, 6),
+			New(2, 4, 6),
 			isOdd,
 			true,
 		},
 		fixture{
-			NewArray(0, 2, 4, 5),
+			New(0, 2, 4, 5),
 			isOdd,
 			false,
 		},
@@ -305,10 +305,10 @@ func TestReverse(t *testing.T) {
 		array    ArrayInterface
 		expected ArrayInterface
 	}
-	fixtures := NewArray(
+	fixtures := New(
 		fixture{
-			NewArray(1, 2, 3),
-			NewArray(3, 2, 1),
+			New(1, 2, 3),
+			New(3, 2, 1),
 		},
 	)
 	fixtures.ForEach(func(v interface{}, i int) {
@@ -320,10 +320,10 @@ func TestReverse(t *testing.T) {
 }
 
 func TestConcat(t *testing.T) {
-	a := NewArray(1, 2)
-	b := NewArray(3, 4)
-	c := NewArray(5, 6)
-	expected := NewArray(1, 2, 3, 4, 5, 6)
+	a := New(1, 2)
+	b := New(3, 4)
+	c := New(5, 6)
+	expected := New(1, 2, 3, 4, 5, 6)
 	actual := a.Concat(b, c)
 	expected.ForEach(func(val interface{}, i int) {
 		expect(t, actual.At(i), val)
@@ -336,9 +336,9 @@ func TestSort(t *testing.T) {
 		expected ArrayInterface
 		callback func(a, b interface{}) bool
 	}
-	fixtures := NewArray(&fixture{
-		NewArray(1, 2, 3),
-		NewArray(1, 2, 3),
+	fixtures := New(&fixture{
+		New(1, 2, 3),
+		New(1, 2, 3),
 		func(a, b interface{}) bool {
 			if a.(int) <= b.(int) {
 				return true
@@ -346,8 +346,8 @@ func TestSort(t *testing.T) {
 			return false
 		},
 	}, &fixture{
-		NewArray(1, 2, 3),
-		NewArray(3, 2, 1),
+		New(1, 2, 3),
+		New(3, 2, 1),
 		func(a, b interface{}) bool {
 			if a.(int) <= b.(int) {
 				return false
@@ -371,18 +371,18 @@ func TestIndexOf(t *testing.T) {
 		args     []interface{}
 		expected int
 	}
-	fixtures := NewArray(&fixture{
-		NewArray(1, 2, 3),
+	fixtures := New(&fixture{
+		New(1, 2, 3),
 		[]interface{}{1, 0},
 		0,
 	},
 		&fixture{
-			NewArray(4, 5, 6),
+			New(4, 5, 6),
 			[]interface{}{1, 0},
 			-1,
 		},
 		&fixture{
-			NewArray(1, 2, "a", "b"),
+			New(1, 2, "a", "b"),
 			[]interface{}{"a", 1},
 			2,
 		})
@@ -400,8 +400,8 @@ func TestReduceRight(t *testing.T) {
 		initial  interface{}
 		expected interface{}
 	}
-	fixtures := NewArray(&fixture{
-		NewArray("m", "e", "s", "s", "a", "g", "e"),
+	fixtures := New(&fixture{
+		New("m", "e", "s", "s", "a", "g", "e"),
 		func(word interface{}, letter interface{}, index int) interface{} {
 			return word.(string) + letter.(string)
 		},
@@ -420,8 +420,8 @@ func TestLastIndexOf(t *testing.T) {
 		args     []interface{}
 		expected int
 	}
-	fixtures := NewArray(&fixture{
-		NewArray(1, 2, 3, 1),
+	fixtures := New(&fixture{
+		New(1, 2, 3, 1),
 		[]interface{}{1, 4},
 		3,
 	})
