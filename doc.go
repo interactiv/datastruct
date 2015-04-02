@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 /*
-Package datastruct provides multiple data structures to complement Go default datas structures, such as
+datastruct provides multiple data structures to complement Go default datas structures, such as
 Array and many others
 
 Array
