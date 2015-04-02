@@ -1,6 +1,10 @@
+// Copyright 2015 mparaiso<mparaiso@online.fr>. All rights reserved.
+// Use of this source code is governed by a MIT-style
+// license that can be found in the LICENSE file.
+
 /*
-Package datastruct provides multiple data structures to complement Go default datas structes, such as
-Array, Map, Set, Stack and Queue and many others.
+Package datastruct provides multiple data structures to complement Go default datas structures, such as
+Array and many others
 
 Array
 
@@ -49,5 +53,4 @@ in the exemple: 14,12,10,2,4,6
 
 
 */
-
 package datastruct
